@@ -1,0 +1,150 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\Shreyas\Dropbox\Development team\shreyas\Alcohol_Detection\Software\HMI_Alcohol_Detection_Project\RVMDK\Project.uvproj
+Project File Date:  03/16/2019
+
+<h2>Output:</h2>
+Rebuild target 'VTS + DE'
+compiling main.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Application_Layer\main.c: 1 warning, 0 errors
+compiling Alcohol_Detection.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Application_Layer\Alcohol_Detection.c(157): warning:  #550-D: variable "l_uc_Mailbox_No" was set but never used
+        unsigned char l_uc_Mailbox_No = 0;
+..\Application_Layer\Alcohol_Detection.c(176): warning:  #177-D: label "lbl_Resend_CAN_Msg" was declared but never referenced
+  lbl_Resend_CAN_Msg:
+..\Application_Layer\Alcohol_Detection.c(202): warning:  #550-D: variable "l_uc_Mailbox_No" was set but never used
+        unsigned char l_uc_Mailbox_No = 0;
+..\Application_Layer\Alcohol_Detection.c(221): warning:  #177-D: label "lbl_Resend_CAN_Msg" was declared but never referenced
+  lbl_Resend_CAN_Msg:
+..\Application_Layer\Alcohol_Detection.c: 5 warnings, 0 errors
+compiling CAN_Configuration.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(63): warning:  #177-D: variable "l_s_ul_Temp_var" was declared but never referenced
+      static unsigned long l_s_ul_Temp_var = 0;
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(64): warning:  #550-D: variable "l_uc_Mailbox_No" was set but never used
+        unsigned char l_uc_Mailbox_No = 0;
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(88): warning:  #177-D: label "lbl_Resend_CAN_Msg" was declared but never referenced
+  lbl_Resend_CAN_Msg:
+..\Hardware_Abstraction_Layer\CAN_Configuration.c: 4 warnings, 0 errors
+compiling InitStm32.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Hardware_Abstraction_Layer\InitStm32.c: 1 warning, 0 errors
+compiling HAL_ADC.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Hardware_Abstraction_Layer\HAL_ADC.c(95): warning:  #186-D: pointless comparison of unsigned integer with zero
+        if( (l_uc_ADC_Channel_Number >= ADC_Channel_0) && (l_uc_ADC_Channel_Number <= ADC_Channel_17) )
+..\Hardware_Abstraction_Layer\HAL_ADC.c: 2 warnings, 0 errors
+assembling cortexm3_macro.s...
+assembling stm32f10x_vector.s...
+compiling stm32f10x_adc.c...
+compiling stm32f10x_can.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\STM_Library\SRC\stm32f10x_can.c: 1 warning, 0 errors
+compiling stm32f10x_exti.c...
+compiling stm32f10x_flash.c...
+compiling stm32f10x_gpio.c...
+compiling stm32f10x_i2c.c...
+compiling stm32f10x_it.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\STM_Library\SRC\stm32f10x_it.c(431): warning:  #177-D: variable "l_us_Relevant_Obj_Present_Counter" was declared but never referenced
+      unsigned short l_us_Relevant_Obj_Present_Counter = 0;
+..\STM_Library\SRC\stm32f10x_it.c: 2 warnings, 0 errors
+compiling stm32f10x_iwdg.c...
+compiling stm32f10x_lib.c...
+compiling stm32f10x_nvic.c...
+compiling stm32f10x_pwr.c...
+compiling stm32f10x_rcc.c...
+compiling stm32f10x_tim.c...
+compiling stm32f10x_usart.c...
+compiling stm32f10x_wwdg.c...
+compiling stm32f10x_systick.c...
+compiling uart.c...
+..\Include\Alcohol_Detection.h(60): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Hardware_Abstraction_Layer\uart.c: 1 warning, 0 errors
+linking...
+Program Size: Code=9580 RO-data=424 RW-data=92 ZI-data=4188  
+FromELF: creating hex file...
+".\Obj\ACC_00_00_00_01.hex" - 0 Error(s), 17 Warning(s).
+</pre>
+</body>
+</html>
+LF: creating hex file...
+".\Obj\ACC_00_00_00_01.hex" - 0 Error(s), 18 Warning(s).
+00_01.hex: Error: L6200E: Symbol g_vui_Ticker_Get_Alcohol_Test_Samples multiply defined (by can_configuration.o and main.o).
+.\Obj\ACC_00_00_01.hex: Error: L6200E: Symbol g_vui_Ticker_Get_Alcohol_Test_Samples multiply defined (by initstm32.o and main.o).
+.\Obj\ACC_00_00_01.hex: Error: L6200E: Symbol g_vui_Ticker_Get_Alcohol_Test_Samples multiply defined (by hal_adc.o and main.o).
+.\Obj\ACC_00_00_01.hex: Error: L6200E: Symbol g_vui_Ticker_Get_Alcohol_Test_Samples multiply defined (by stm32f10x_can.o and main.o).
+.\Obj\ACC_00_00_01.hex: Error: L6200E: Symbol g_vui_Ticker_Get_Alcohol_Test_Samples multiply defined (by stm32f10x_it.o and main.o).
+.\Obj\ACC_00_00_01.hex: Error: L6200E: Symbol g_vui_Ticker_Get_Alcohol_Test_Samples multiply defined (by uart.o and main.o).
+Not enough information to list image symbols.
+Not enough information to list the image map.
+Finished: 2 information, 0 warning and 7 error messages.
+".\Obj\ACC_00_00_01.hex" - 7 Error(s), 18 Warning(s).
+Target not created
+ undefined
+        CAN_FilterInitStructure.CAN_FilterMaskIdLow = (CAN_RX_ID_OF_RESERVED3 << 5);
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(138): error:  #20: identifier "LED_BOARD_HEARTBIT_SEND_TIME" is undefined
+                g_vui_Ticker_Accessory_Board_Heartbeat = LED_BOARD_HEARTBIT_SEND_TIME;
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(100): warning:  #177-D: variable "l_s_ul_Temp_var" was declared but never referenced
+      static unsigned long l_s_ul_Temp_var = 0;
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(101): warning:  #550-D: variable "l_uc_Mailbox_No" was set but never used
+        unsigned char l_uc_Mailbox_No = 0;
+..\Hardware_Abstraction_Layer\CAN_Configuration.c(125): warning:  #177-D: label "lbl_Resend_CAN_Msg" was declared but never referenced
+  lbl_Resend_CAN_Msg:
+..\Hardware_Abstraction_Layer\CAN_Configuration.c: 5 warnings, 17 errors
+compiling InitStm32.c...
+..\Include\HAL_ADC.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Include\Alcohol_Detection.h(55): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Hardware_Abstraction_Layer\InitStm32.c: 2 warnings, 0 errors
+compiling HAL_ADC.c...
+..\Include\HAL_ADC.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Include\Alcohol_Detection.h(55): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Hardware_Abstraction_Layer\HAL_ADC.c(95): warning:  #186-D: pointless comparison of unsigned integer with zero
+        if( (l_uc_ADC_Channel_Number >= ADC_Channel_0) && (l_uc_ADC_Channel_Number <= ADC_Channel_17) )
+..\Hardware_Abstraction_Layer\HAL_ADC.c: 3 warnings, 0 errors
+assembling cortexm3_macro.s...
+assembling stm32f10x_vector.s...
+compiling stm32f10x_adc.c...
+compiling stm32f10x_can.c...
+..\Include\HAL_ADC.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Include\Alcohol_Detection.h(55): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\STM_Library\SRC\stm32f10x_can.c: 2 warnings, 0 errors
+compiling stm32f10x_exti.c...
+compiling stm32f10x_flash.c...
+compiling stm32f10x_gpio.c...
+compiling stm32f10x_i2c.c...
+compiling stm32f10x_it.c...
+..\Include\HAL_ADC.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Include\Alcohol_Detection.h(55): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\STM_Library\SRC\stm32f10x_it.c(431): warning:  #177-D: variable "l_us_Relevant_Obj_Present_Counter" was declared but never referenced
+      unsigned short l_us_Relevant_Obj_Present_Counter = 0;
+..\STM_Library\SRC\stm32f10x_it.c: 3 warnings, 0 errors
+compiling stm32f10x_iwdg.c...
+compiling stm32f10x_lib.c...
+compiling stm32f10x_nvic.c...
+compiling stm32f10x_pwr.c...
+stm32f10x_pwr.c: Error:  #5: cannot open source input file ".\obj\stm32f10x_pwr.d": Permission denied
+..\STM_Library\SRC\stm32f10x_pwr.c: 0 warnings, 1 error
+".\Obj\ACC_00_00_01.hex" - 18 Error(s), 24 Warning(s).
+Target not created
