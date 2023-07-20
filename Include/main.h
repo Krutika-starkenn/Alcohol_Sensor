@@ -26,14 +26,11 @@
 #include <stdio.h>
 #include "math.h"
 #include "HAL_ADC.h"
-#include "TPMS_Monitor.h"
-#include "Driver_Drowsiness.h"
 #include <time.h>
 #include "HAL_I2C.h"
 
 #include "Alcohol_Detection_Algorithm.h"
 #include "HAL_SPI.h"
-#include "Battery_Level_Detection.h"
 #include "Pressure_Sensor_XGPG6857D.h"
 
 typedef enum

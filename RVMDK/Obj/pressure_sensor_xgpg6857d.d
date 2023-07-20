@@ -28,11 +28,8 @@
 .\obj\pressure_sensor_xgpg6857d.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\obj\pressure_sensor_xgpg6857d.o: C:\Keil\ARM\ARMCC\bin\..\include\math.h
 .\obj\pressure_sensor_xgpg6857d.o: ..\Include\HAL_ADC.h
-.\obj\pressure_sensor_xgpg6857d.o: ..\Include\TPMS_Monitor.h
-.\obj\pressure_sensor_xgpg6857d.o: ..\Include\Driver_Drowsiness.h
 .\obj\pressure_sensor_xgpg6857d.o: C:\Keil\ARM\ARMCC\bin\..\include\time.h
 .\obj\pressure_sensor_xgpg6857d.o: ..\Include\HAL_I2C.h
 .\obj\pressure_sensor_xgpg6857d.o: ..\Include\Alcohol_Detection_Algorithm.h
 .\obj\pressure_sensor_xgpg6857d.o: ..\Include\HAL_SPI.h
-.\obj\pressure_sensor_xgpg6857d.o: ..\Include\Battery_Level_Detection.h
 .\obj\pressure_sensor_xgpg6857d.o: ..\Include\Pressure_Sensor_XGPG6857D.h

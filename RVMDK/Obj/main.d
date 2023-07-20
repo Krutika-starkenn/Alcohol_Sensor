@@ -28,11 +28,8 @@
 .\obj\main.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\obj\main.o: C:\Keil\ARM\ARMCC\bin\..\include\math.h
 .\obj\main.o: ..\Include\HAL_ADC.h
-.\obj\main.o: ..\Include\TPMS_Monitor.h
-.\obj\main.o: ..\Include\Driver_Drowsiness.h
 .\obj\main.o: C:\Keil\ARM\ARMCC\bin\..\include\time.h
 .\obj\main.o: ..\Include\HAL_I2C.h
 .\obj\main.o: ..\Include\Alcohol_Detection_Algorithm.h
 .\obj\main.o: ..\Include\HAL_SPI.h
-.\obj\main.o: ..\Include\Battery_Level_Detection.h
 .\obj\main.o: ..\Include\Pressure_Sensor_XGPG6857D.h

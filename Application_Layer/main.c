@@ -41,8 +41,6 @@ volatile unsigned int g_vui_Ticker_ADC_Voltage_Level_Scanning_Time = 0;
 
 unsigned char g_uc_Flag_LED_State = 0;
 unsigned char g_uc_Flag_Send_Data = 0;
-tdst_Image_Counts gost_Image_Counts;
-//tdst_Image_Data gost_Image_Data;
 unsigned short g_us_Factory_Data = 0;
 I2C_InitTypeDef I2C_pressure_Struct;
 

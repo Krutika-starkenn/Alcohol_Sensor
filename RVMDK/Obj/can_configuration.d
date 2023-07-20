@@ -28,11 +28,8 @@
 .\obj\can_configuration.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\obj\can_configuration.o: C:\Keil\ARM\ARMCC\bin\..\include\math.h
 .\obj\can_configuration.o: ..\Include\HAL_ADC.h
-.\obj\can_configuration.o: ..\Include\TPMS_Monitor.h
-.\obj\can_configuration.o: ..\Include\Driver_Drowsiness.h
 .\obj\can_configuration.o: C:\Keil\ARM\ARMCC\bin\..\include\time.h
 .\obj\can_configuration.o: ..\Include\HAL_I2C.h
 .\obj\can_configuration.o: ..\Include\Alcohol_Detection_Algorithm.h
 .\obj\can_configuration.o: ..\Include\HAL_SPI.h
-.\obj\can_configuration.o: ..\Include\Battery_Level_Detection.h
 .\obj\can_configuration.o: ..\Include\Pressure_Sensor_XGPG6857D.h

@@ -49,10 +49,10 @@ void CAN_Config(void)
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdList;
 	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
 	/*For a SID the numbers for the Filter/Mask IDs need to be shifted to the left by 5 bits.*/
-    CAN_FilterInitStructure.CAN_FilterIdHigh = (CAN_RX_ID_OF_TPMS_THRESHOLDS_MESSAGE << 5);
-    CAN_FilterInitStructure.CAN_FilterIdLow = (CAN_RX_ID_OF_TPMS_TYRE_CONFIGURATION_MESSAGE << 5);
-	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = (CAN_RX_ID_OF_DRIVER_DROWSINESS_SPEED_MESSAGE << 5);
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = (CAN_RX_ID_OF_DATE_TIME_BROADCAST << 5);
+    CAN_FilterInitStructure.CAN_FilterIdHigh = (0 << 5);
+    CAN_FilterInitStructure.CAN_FilterIdLow = (0 << 5);
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = (0 << 5);
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = (0 << 5);
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
@@ -62,8 +62,8 @@ void CAN_Config(void)
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdList;
 	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
 	/*For a SID the numbers for the Filter/Mask IDs need to be shifted to the left by 5 bits.*/
-    CAN_FilterInitStructure.CAN_FilterIdHigh = (CAN_RX_ID_OF_IMAGE_TRANSFER_REQUEST_REPLY << 5);
-    CAN_FilterInitStructure.CAN_FilterIdLow = (CAN_RX_ID_OF_IMAGE_TRANSFER_STATUS << 5);
+    CAN_FilterInitStructure.CAN_FilterIdHigh = (0 << 5);
+    CAN_FilterInitStructure.CAN_FilterIdLow = (0 << 5);
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0;
 	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;

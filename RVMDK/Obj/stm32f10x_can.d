@@ -28,11 +28,8 @@
 .\obj\stm32f10x_can.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\obj\stm32f10x_can.o: C:\Keil\ARM\ARMCC\bin\..\include\math.h
 .\obj\stm32f10x_can.o: ..\Include\HAL_ADC.h
-.\obj\stm32f10x_can.o: ..\Include\TPMS_Monitor.h
-.\obj\stm32f10x_can.o: ..\Include\Driver_Drowsiness.h
 .\obj\stm32f10x_can.o: C:\Keil\ARM\ARMCC\bin\..\include\time.h
 .\obj\stm32f10x_can.o: ..\Include\HAL_I2C.h
 .\obj\stm32f10x_can.o: ..\Include\Alcohol_Detection_Algorithm.h
 .\obj\stm32f10x_can.o: ..\Include\HAL_SPI.h
-.\obj\stm32f10x_can.o: ..\Include\Battery_Level_Detection.h
 .\obj\stm32f10x_can.o: ..\Include\Pressure_Sensor_XGPG6857D.h

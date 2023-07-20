@@ -28,11 +28,8 @@
 .\obj\alcohol_detection_algorithm.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\obj\alcohol_detection_algorithm.o: C:\Keil\ARM\ARMCC\bin\..\include\math.h
 .\obj\alcohol_detection_algorithm.o: ..\Include\HAL_ADC.h
-.\obj\alcohol_detection_algorithm.o: ..\Include\TPMS_Monitor.h
-.\obj\alcohol_detection_algorithm.o: ..\Include\Driver_Drowsiness.h
 .\obj\alcohol_detection_algorithm.o: C:\Keil\ARM\ARMCC\bin\..\include\time.h
 .\obj\alcohol_detection_algorithm.o: ..\Include\HAL_I2C.h
 .\obj\alcohol_detection_algorithm.o: ..\Include\Alcohol_Detection_Algorithm.h
 .\obj\alcohol_detection_algorithm.o: ..\Include\HAL_SPI.h
-.\obj\alcohol_detection_algorithm.o: ..\Include\Battery_Level_Detection.h
 .\obj\alcohol_detection_algorithm.o: ..\Include\Pressure_Sensor_XGPG6857D.h
