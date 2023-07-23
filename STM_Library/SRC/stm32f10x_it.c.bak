@@ -1,0 +1,1491 @@
+/******************* (C) COPYRIGHT 2013 SSPL **********************************
+* File Name          : main.c
+* Author             : MCD Application Team
+* Version            : 
+* Date               : 
+* Description        : 
+*******************************************************************************/
+
+/* Includes ------------------------------------------------------------------*/
+
+#include "main.h"
+#include "stm32f10x_it.h"
+
+#include "stm32f10x_tim.h"
+
+
+
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
+/*******************************************************************************
+* Function Name  : NMIException
+* Description    : This function handles NMI exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void NMIException(void)
+{}
+
+/*******************************************************************************
+* Function Name  : HardFaultException
+* Description    : This function handles Hard Fault exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void HardFaultException(void)
+{
+  /* Go to infinite loop when Hard Fault exception occurs */
+  while (1)
+  {}
+}
+
+/*******************************************************************************
+* Function Name  : MemManageException
+* Description    : This function handles Memory Manage exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void MemManageException(void)
+{
+  /* Go to infinite loop when Memory Manage exception occurs */
+  while (1)
+  {}
+}
+
+/*******************************************************************************
+* Function Name  : BusFaultException
+* Description    : This function handles Bus Fault exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void BusFaultException(void)
+{
+  /* Go to infinite loop when Bus Fault exception occurs */
+  while (1)
+  {}
+}
+
+/*******************************************************************************
+* Function Name  : UsageFaultException
+* Description    : This function handles Usage Fault exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void UsageFaultException(void)
+{
+  /* Go to infinite loop when Usage Fault exception occurs */
+  while (1)
+  {}
+}
+
+/*******************************************************************************
+* Function Name  : DebugMonitor
+* Description    : This function handles Debug Monitor exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DebugMonitor(void)
+{}
+
+/*******************************************************************************
+* Function Name  : SVCHandler
+* Description    : This function handles SVCall exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SVCHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : PendSVC
+* Description    : This function handles PendSVC exception.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void PendSVC(void)
+{}
+
+/*******************************************************************************
+* Function Name  : SysTickHandler
+* Description    : This function handles SysTick Handler.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SysTickHandler(void)
+{  
+	if(g_vui_mSec)	g_vui_mSec--;
+	
+	if(1 == g_uc_Power_ON_Flag)
+	{
+		if(g_vui_Ticker_Power_ON_Key_Detection_Timer) g_vui_Ticker_Power_ON_Key_Detection_Timer--;
+	}
+	
+    
+
+	if(g_vui_Ticker_Key_Debounce_Timeout) g_vui_Ticker_Key_Debounce_Timeout--;
+	if(g_vui_Ticker_Time_Between_Two_Key_Press_Timer) g_vui_Ticker_Time_Between_Two_Key_Press_Timer--;
+	if(g_vui_Ticker_Long_Key_Press_Detection_Timer) g_vui_Ticker_Long_Key_Press_Detection_Timer--;
+	
+	// Alarm LED Buzzer Cycle
+	if(1 == g_uc_Cycle_Mode)
+	{
+		if(g_uc_Flag_Cycle_State == ON)
+		{
+			if(g_vus_Ticker_BUZZER_LED_ON)
+			{
+				g_vus_Ticker_BUZZER_LED_ON --;
+			}
+			else
+			{
+				g_uc_Flag_LED_State = OFF;
+				g_uc_Flag_Cycle_State = OFF;
+			}
+			
+		}
+		else
+		{
+		
+			if(g_vus_Ticker_BUZZER_LED_OFF)
+			{
+				g_vus_Ticker_BUZZER_LED_OFF --;
+			}
+			else
+			{
+				g_uc_Flag_LED_State = ON;
+				g_uc_Flag_Cycle_State = ON;				
+			}
+		}
+	}
+	
+	
+	// Sleep Alert LED Buzzer Cycle
+	if(1 == g_uc_Sleep_Alert_Cycle_Mode)
+	{
+		
+		if(g_uc_Flag_Sleep_alert_Current_Cycle_State == ON)
+		{
+			if(g_vui_Ticker_Sleep_alert_Buzzer_On_time)
+			{
+				g_vui_Ticker_Sleep_alert_Buzzer_On_time --;
+			}
+			else
+			{
+				#if DEBUG_ON
+					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n SA On timer over");	
+					fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);	
+				#endif
+				
+				g_uc_Flag_Sleep_alert_Buzzer_State = OFF;
+				g_uc_Flag_Sleep_alert_Current_Cycle_State = OFF;
+			}
+			
+		}
+		else
+		{
+		
+			if(g_vui_Ticker_Sleep_alert_Buzzer_Off_time)
+			{
+				g_vui_Ticker_Sleep_alert_Buzzer_Off_time --;
+			}
+			else
+			{
+				//sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n SA OFF timer over");	
+				//fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+				
+				g_uc_Flag_Sleep_alert_Buzzer_State = ON;
+				g_uc_Flag_Sleep_alert_Current_Cycle_State = ON;				
+			}
+		}
+		
+	}
+	
+	
+	if(g_vui_Ticker_LED_Heartbit) g_vui_Ticker_LED_Heartbit--;
+	if(g_vui_Ticker_Cruise_Pause) g_vui_Ticker_Cruise_Pause--;
+    if (g_v_ui_Ticker_RFID_Absent_Timeout) g_v_ui_Ticker_RFID_Absent_Timeout--;
+
+    // Display Timeouts
+    if(g_vui_Ticker_Moderate_Priority_Screen_Display_Timeout) g_vui_Ticker_Moderate_Priority_Screen_Display_Timeout--;
+	if(g_vui_Ticker_Limp_Screen_Display_Timeout) g_vui_Ticker_Limp_Screen_Display_Timeout--;
+    if(g_vui_Ticker_Accelerator_Cutoff_Screen_Display_Timeout) g_vui_Ticker_Accelerator_Cutoff_Screen_Display_Timeout--;
+}
+
+/*******************************************************************************
+* Function Name  : WWDG_IRQHandler
+* Description    : This function handles WWDG interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void WWDG_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : PVD_IRQHandler
+* Description    : This function handles PVD interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void PVD_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TAMPER_IRQHandler
+* Description    : This function handles Tamper interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TAMPER_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : RTC_IRQHandler
+* Description    : This function handles RTC global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void RTC_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : FLASH_IRQHandler
+* Description    : This function handles Flash interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void FLASH_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : RCC_IRQHandler
+* Description    : This function handles RCC interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void RCC_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : EXTI0_IRQHandler
+* Description    : This function handles External interrupt Line 0 request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI0_IRQHandler(void)		/* tested on 29th May2017*/
+{
+  
+    if(EXTI_GetITStatus(EXTI_Line0) != RESET)
+	{
+        
+		if(1 == g_uc_Power_ON_Flag)
+		{
+			//key detection within 5 sec
+            if(!CRUISE_BUTTON_STATUS)
+            {
+                if (!g_vui_Ticker_Time_Between_Two_Key_Press_Timer)
+                {
+                    g_uc_Key_Press_Counter = 0;
+                }
+                
+                g_uc_Key_Press_Counter++;
+                g_vui_Ticker_Time_Between_Two_Key_Press_Timer =  TIMEOUT_BETWEEN_TWO_KEY_PRESS;
+                
+                #if 1//DEBUG_ON
+                    sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n KP Cnt:%d, %d, %d", g_uc_Key_Press_Counter, g_vui_Ticker_Power_ON_Key_Detection_Timer, g_uc_Power_ON_Flag);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+                #endif
+
+				if(g_uc_Key_Press_Counter == 3)
+				{
+					g_uc_Flag_Multiple_Times_Key_Pressed = 0;
+					//g_vui_Ticker_Power_ON_Key_Detection_Timer = 0;	
+                    g_uc_Flag_Multiple_Key_Pressed_For_Test_Mode = 1;
+				}
+                
+				if(g_uc_Key_Press_Counter == 5)
+				{
+					g_uc_Flag_Multiple_Times_Key_Pressed = 1;
+					//g_vui_Ticker_Power_ON_Key_Detection_Timer = 0;	
+                    g_uc_Flag_Multiple_Key_Pressed_For_Test_Mode = 0;
+				}
+				
+                if(g_uc_Key_Press_Counter != 5 && g_uc_Key_Press_Counter != 3)
+				{
+//					g_uc_Key_Press_Counter = 0;
+					g_uc_Flag_Multiple_Times_Key_Pressed = 0;
+                    g_uc_Flag_Multiple_Key_Pressed_For_Test_Mode = 0;
+				}
+                
+				
+			}
+			
+		}
+		else
+		{
+
+			if(!CRUISE_BUTTON_STATUS)
+			{
+                #if 1
+                    fn_uc_Send_String_On_Debug_Port("\r\n Key press detected");
+                #endif
+                
+                Cruz_On_Off_Bit = BIT_HIGH;
+                
+                // change prev state
+                g_uc_Flag_Previous_State = KEY_PRESSED;
+			}
+			
+		}
+        
+        EXTI_ClearITPendingBit(EXTI_Line0);
+    }
+ 
+}
+
+/*******************************************************************************
+* Function Name  : EXTI1_IRQHandler
+* Description    : This function handles External interrupt Line 1 request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI1_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : EXTI2_IRQHandler
+* Description    : This function handles External interrupt Line 2 request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI2_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : EXTI3_IRQHandler
+* Description    : This function handles External interrupt Line 3 request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI3_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : EXTI4_IRQHandler
+* Description    : This function handles External interrupt Line 4 request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI4_IRQHandler(void)
+{
+	EXTI_ClearITPendingBit(EXTI_Line4);
+}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel1_IRQHandler
+* Description    : This function handles DMA1 Channel 1 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel1_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel2_IRQHandler
+* Description    : This function handles DMA1 Channel 2 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel2_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel3_IRQHandler
+* Description    : This function handles DMA1 Channel 3 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel3_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel4_IRQHandler
+* Description    : This function handles DMA1 Channel 4 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel4_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel5_IRQHandler
+* Description    : This function handles DMA1 Channel 5 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel5_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel6_IRQHandler
+* Description    : This function handles DMA1 Channel 6 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel6_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA1_Channel7_IRQHandler
+* Description    : This function handles DMA1 Channel 7 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel7_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : ADC1_2_IRQHandler
+* Description    : This function handles ADC1 and ADC2 global interrupts requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ADC1_2_IRQHandler(void)
+{}
+
+
+
+/*******************************************************************************
+* Function Name  : USB_HP_CAN_TX_IRQHandler
+* Description    : This function handles USB High Priority or CAN TX interrupts 
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USB_HP_CAN_TX_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : USB_LP_CAN_RX0_IRQHandler
+* Description    : This function handles USB Low Priority or CAN RX0 interrupts 
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USB_LP_CAN_RX0_IRQHandler(void)
+{
+	
+    unsigned short l_us_Relevant_Obj_Present_Counter = 0;
+	CanRxMsg Can_Rx_Msg;
+//	u8 n=0;
+	/* Reset all Identifier bytes to zero */
+	Can_Rx_Msg.g_ul_Can_Rx_STD_ID=0x00;
+	Can_Rx_Msg.g_ul_Can_Rx_EXD_ID=0x00;
+	Can_Rx_Msg.g_uc_Can_Rx_IDE=0;
+	Can_Rx_Msg.g_uc_Can_Rx_DLC=0;
+	Can_Rx_Msg.g_uc_Can_Rx_RTR=0;	
+	Can_Rx_Msg.g_uc_Can_Rx_FMI=0;
+	
+	/* Reset all data bytes to zero */
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[0]=0x00;	/* Byte0 */
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[1]=0x00;
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[2]=0x00;
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[3]=0x00;
+	
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[4]=0x00;
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[5]=0x00;
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[6]=0x00;
+	Can_Rx_Msg.g_uc_Can_Rx_DATA[7]=0x00;	/* Byte7 */	
+	
+	get_Received_CAN_Data(CAN_FIFO0, &Can_Rx_Msg);	/* Receive	*/
+	
+	//for(n=0;n<8;n++)
+	{
+		//g_uc_ECU_Data_Msg[n]=Can_Rx_Msg.g_uc_Can_Rx_DATA[n];
+		g_uc_ECU_Data_Msg[0] = Can_Rx_Msg.g_uc_Can_Rx_DATA[0];
+		g_uc_ECU_Data_Msg[1] = Can_Rx_Msg.g_uc_Can_Rx_DATA[1];
+		g_uc_ECU_Data_Msg[2] = Can_Rx_Msg.g_uc_Can_Rx_DATA[2];
+		g_uc_ECU_Data_Msg[3] = Can_Rx_Msg.g_uc_Can_Rx_DATA[3];
+		g_uc_ECU_Data_Msg[4] = Can_Rx_Msg.g_uc_Can_Rx_DATA[4];
+		g_uc_ECU_Data_Msg[5] = Can_Rx_Msg.g_uc_Can_Rx_DATA[5];
+		g_uc_ECU_Data_Msg[6] = Can_Rx_Msg.g_uc_Can_Rx_DATA[6];
+		g_uc_ECU_Data_Msg[7] = Can_Rx_Msg.g_uc_Can_Rx_DATA[7];
+	}
+
+	/**********************************************************************
+	*  STD_ID=0x100, Message: Error message from ECU , Source=ECU 
+	*	 Destination=LED Alarm card.  
+	*  Parameters are: Device Error, Peripheral Error, System Error 
+	*	 and Manual Error 
+	**********************************************************************/
+		
+		#if 0
+			sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\nID:%x",(int)Can_Rx_Msg.g_ul_Can_Rx_STD_ID);	
+			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);	
+		#endif
+/*	
+		if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_ECU_ALARM_DATA)	    
+		{			
+			
+				g_uc_Alarm_Status	=	g_uc_ECU_Data_Msg[0];		// copy Error byte0 in local variable 
+			
+				#if DEBUG_ON
+					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Alarm :%d",g_uc_Alarm_Status);	
+					fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+				#endif
+		
+		}
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_CRUISE_STATE_DATA)	    
+		{
+					
+				
+				g_uc_Cruz_Status	=	g_uc_ECU_Data_Msg[0];	
+			
+			#if DEBUG_ON
+				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Cruise CAN Status - %d", g_uc_Cruz_Status);	
+				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+			#endif
+
+				if(g_uc_Cruz_Status == CRUZ_ON)
+				{
+					CRUISE_LED_ON;
+					g_uc_Flag_Toggle_Cruise_LED = 0;
+				}
+				else  if(g_uc_Cruz_Status == CRUZ_OFF)
+				{
+					g_uc_Flag_Play_Error_Buzzer_Tone = 1;
+					CRUISE_LED_OFF;
+					g_uc_Flag_Toggle_Cruise_LED = 0;
+				}
+				else if(g_uc_Cruz_Status == CRUZ_PAUSE)
+				{
+					g_uc_Flag_Toggle_Cruise_LED = 1;
+					g_vui_Ticker_Cruise_Pause = CRUISE_PAUSE_LED_TOGGLE_TIME;;
+				}
+				else if(g_uc_Cruz_Status == CRUZ_RESUME)
+				{
+					CRUISE_LED_ON;
+					g_uc_Flag_Toggle_Cruise_LED = 0;
+				}
+						
+		}		
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_BLUETOOTH_STATUS)	    
+		{
+				#if DEBUG_ON
+				fn_uc_Send_String_On_Debug_Port("\r\n Bluetooth CAN Msg");	
+				#endif
+				
+				g_uc_Bluetooth_Status	= g_uc_ECU_Data_Msg[0];				
+		}
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_ERROR_STATUS)
+		{
+			#if DEBUG_ON
+				fn_uc_Send_String_On_Debug_Port("\r\n Error CAN Msg");	
+			#endif
+				
+			g_uc_Error_Status	= g_uc_ECU_Data_Msg[0];	
+			
+		}
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_ACCELERATOR_STATUS)
+		{
+			#if DEBUG_ON
+				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Accelerator msg - %d", g_uc_ECU_Data_Msg[0]);	
+				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+			#endif
+				
+			g_uc_Accelerator_Status	= g_uc_ECU_Data_Msg[0];	
+		}
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_SLEEP_ALERT_STATUS)
+		{				
+			g_uc_Sleep_Alert_Status	= g_uc_ECU_Data_Msg[0];		// 0 - Sleep alert OFF
+																// 1 - Sleep alert ON
+			
+			if(0 == g_uc_Sleep_Alert_Status)
+			{
+				g_uc_Flag_Sleep_Alert_Timer = ELAPSED;
+				g_uc_Flag_Previous_Sleep_alert_Buzzer_State = OFF;
+				g_uc_Flag_Sleep_alert_Buzzer_State = OFF;
+				g_uc_Sleep_Alert_Cycle_Mode = 0;
+				g_uc_Flag_Play_Error_Buzzer_Tone = 1;					
+				fn_uc_Reset_Alarm_LEDs();
+				g_uc_Flag_Clear_ALL_LED_Buzzer_State = 0;
+			}
+			else
+			{
+				g_uc_Flag_Clear_ALL_LED_Buzzer_State = 1;
+			}
+			
+			#if DEBUG_ON
+				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Sleep alert feature - %d", g_uc_Sleep_Alert_Status);	
+				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+			#endif
+						
+			g_uc_Flag_Sleep_Alert_Timer = ELAPSED;
+		}
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_BRAKE_STATUS)
+		{
+			g_uc_Flag_Brake_Alert_Status	= g_uc_ECU_Data_Msg[0];	
+		}
+		else if(Can_Rx_Msg.g_ul_Can_Rx_STD_ID == CAN_RX_ID_OF_EMERGENCY_BUTTON_STATUS)
+		{
+			g_uc_Flag_Emergency_Button_Status = g_uc_ECU_Data_Msg[0];	
+		}
+      */  
+        
+        
+        switch  (Can_Rx_Msg.g_ul_Can_Rx_STD_ID)
+        {
+            case CAN_RX_ID_OF_ECU_ALARM_DATA:
+				g_uc_Alarm_Status	=	g_uc_ECU_Data_Msg[0];		/* copy Error byte0 in local variable */	
+			
+				#if DEBUG_ON
+					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Alarm :%d",g_uc_Alarm_Status);	
+					fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+				#endif
+
+            break;
+            
+            case CAN_RX_ID_OF_CRUISE_STATE_DATA:
+				g_uc_Cruz_Status	=	g_uc_ECU_Data_Msg[0];	
+			
+			#if DEBUG_ON
+				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Cruise CAN Status - %d", g_uc_Cruz_Status);	
+				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+			#endif
+
+				if(g_uc_Cruz_Status == CRUZ_ON)
+				{
+					CRUISE_LED_ON;
+					g_uc_Flag_Toggle_Cruise_LED = 0;
+				}
+				else  if(g_uc_Cruz_Status == CRUZ_OFF)
+				{
+					g_uc_Flag_Play_Error_Buzzer_Tone = 1;
+					CRUISE_LED_OFF;
+					g_uc_Flag_Toggle_Cruise_LED = 0;
+				}
+				else if(g_uc_Cruz_Status == CRUZ_PAUSE)
+				{
+					g_uc_Flag_Toggle_Cruise_LED = 1;
+					g_vui_Ticker_Cruise_Pause = CRUISE_PAUSE_LED_TOGGLE_TIME;;
+				}
+				else if(g_uc_Cruz_Status == CRUZ_RESUME)
+				{
+					CRUISE_LED_ON;
+					g_uc_Flag_Toggle_Cruise_LED = 0;
+				}
+            break;
+            
+            case CAN_RX_ID_OF_BLUETOOTH_STATUS:
+				#if DEBUG_ON
+				fn_uc_Send_String_On_Debug_Port("\r\n Bluetooth CAN Msg");	
+				#endif
+				
+				g_uc_Bluetooth_Status	= g_uc_ECU_Data_Msg[0];				
+            break;
+            
+            case CAN_RX_ID_OF_ERROR_STATUS:		
+                #if DEBUG_ON
+                    fn_uc_Send_String_On_Debug_Port("\r\n Error CAN Msg");	
+                #endif
+                    
+                g_uc_Error_Status	= g_uc_ECU_Data_Msg[0];	
+            break;
+            
+            case CAN_RX_ID_OF_ACCELERATOR_STATUS:
+                #if DEBUG_ON
+                    sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Accelerator msg - %d", g_uc_ECU_Data_Msg[0]);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                #endif
+                    
+                g_uc_Accelerator_Status	= g_uc_ECU_Data_Msg[0];	
+            break;
+            
+            case CAN_RX_ID_OF_SLEEP_ALERT_STATUS:
+                g_uc_Sleep_Alert_Status	= g_uc_ECU_Data_Msg[0];		// 0 - Sleep alert OFF
+                                                                    // 1 - Sleep alert ON
+                
+                if(0 == g_uc_Sleep_Alert_Status)
+                {
+                    g_uc_Flag_Sleep_Alert_Timer = ELAPSED;
+                    g_uc_Flag_Previous_Sleep_alert_Buzzer_State = OFF;
+                    g_uc_Flag_Sleep_alert_Buzzer_State = OFF;
+                    g_uc_Sleep_Alert_Cycle_Mode = 0;
+                    if (g_uc_Alarm_Status != SPEED_PULSE_ABSENT)
+                    {
+                        g_uc_Flag_Play_Error_Buzzer_Tone = 1;
+                        fn_uc_Reset_Alarm_LEDs();
+                        g_uc_Flag_Clear_ALL_LED_Buzzer_State = 0;
+                    }
+                }
+                else
+                {
+                    g_uc_Flag_Clear_ALL_LED_Buzzer_State = 1;
+                }
+                
+                #if DEBUG_ON
+                    sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Sleep alert feature - %d", g_uc_Sleep_Alert_Status);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                #endif
+                            
+                g_uc_Flag_Sleep_Alert_Timer = ELAPSED;
+            break;
+            
+            case CAN_RX_ID_OF_BRAKE_STATUS:	
+                g_uc_Flag_Brake_Alert_Status = g_uc_ECU_Data_Msg[0];	
+            break;
+            
+            case CAN_RX_ID_OF_EMERGENCY_BUTTON_STATUS:
+                g_uc_Flag_Emergency_Button_Status = g_uc_ECU_Data_Msg[0];	
+            break;
+            
+            case CAN_RX_ID_OF_PERIPHERAL_RESET :
+            {
+                if (0xF1 == g_uc_ECU_Data_Msg[0])
+                {
+                    //to  reset the system
+                    NVIC_GenerateSystemReset();
+                }
+                
+            }
+			break;
+        //LCD
+             case CAN_RX_ID_OF_DISTANCE_FROM_ECU:
+             {
+                 static unsigned char  l_uc_Below_CAS_Act = 0;
+                 
+                g_us_Distance_To_Be_Displayed = g_uc_ECU_Data_Msg[0]<< 24;
+                g_us_Distance_To_Be_Displayed = g_us_Distance_To_Be_Displayed | (g_uc_ECU_Data_Msg[1] << 16);
+                g_us_Distance_To_Be_Displayed = g_us_Distance_To_Be_Displayed | (g_uc_ECU_Data_Msg[2] << 8);
+                g_us_Distance_To_Be_Displayed = g_us_Distance_To_Be_Displayed | (g_uc_ECU_Data_Msg[3]);
+
+            
+                #if DEBUG_ON
+                    sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Dist: %d ", g_us_Distance_To_Be_Displayed);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                #endif
+             
+                if (g_us_Distance_To_Be_Displayed == 0xFFFF)
+                {
+//                     if (g_us_Distance_To_Be_Displayed != g_us_Pre_Distance_To_Be_Displayed)
+                    if (l_uc_Below_CAS_Act == 0)
+                     {
+                        l_uc_Below_CAS_Act = 1;
+                        g_us_Pre_Distance_To_Be_Displayed = 0;
+                        g_us_Relevant_Obj_Counter = 0;
+                        g_uc_Rel_Obj_Abs_Once_Displayed = 0;
+
+                        fn_uc_Display_Distance_Relevant_Object_Status(g_us_Distance_To_Be_Displayed, enmSPEED_LESS_THAN_CAS_ACT);
+                        
+                        g_us_Relevant_Obj_Same_Dir_Counter = 0;
+                        g_us_Relevant_Obj_Stationary_Counter = 0;
+                        g_us_Relevant_Obj_Oncoming_Counter = 0;
+                        g_uc_Prev_Relevant_Obj_Status = 0x0F;
+
+                     }
+                    #if DEBUG_ON
+                         sprintf((char *)&g_uc_Transmit_Buffer[0],"\tSpeed < CAS Act");	
+                        fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                    #endif
+					 
+                }
+                else
+                {
+                     l_uc_Below_CAS_Act = 0;
+                    
+                    switch (g_uc_Relevant_Object_Status )
+                    {
+                        case SAME_DIRECTION_OBJECT:
+                        {
+                            g_us_Relevant_Obj_Same_Dir_Counter++;
+                            l_us_Relevant_Obj_Present_Counter = g_us_Relevant_Obj_Same_Dir_Counter;
+                            fn_uc_Display_Distance_Relevant_Object_Status(g_us_Distance_To_Be_Displayed, enmSAME_DIRECTION_OBJECT);
+                        }    
+                        break;
+                        
+                        case ON_COMING_OBJECT:
+                        {
+                            g_us_Relevant_Obj_Oncoming_Counter++;
+                            l_us_Relevant_Obj_Present_Counter = g_us_Relevant_Obj_Oncoming_Counter;
+                            fn_uc_Display_Distance_Relevant_Object_Status(g_us_Distance_To_Be_Displayed, enmON_COMING_OBJECT);
+                        }    
+                        break;
+                        
+                        case RELEVANT_AND_STATIONARY:
+                        {
+                            g_us_Relevant_Obj_Stationary_Counter++;
+                            l_us_Relevant_Obj_Present_Counter = g_us_Relevant_Obj_Stationary_Counter;
+                            fn_uc_Display_Distance_Relevant_Object_Status(g_us_Distance_To_Be_Displayed, enmRELEVANT_AND_STATIONARY);
+                        }    
+                        break;
+                        
+                        case NOT_RELEVANT:
+                        {
+                            g_us_Relevant_Obj_Counter++;
+                             
+                            if(g_us_Relevant_Obj_Counter >= MAX_COUNT_TO_DECLARE_REL_OBJ_ABSENT)
+                            {
+                                if (g_uc_Prev_Relevant_Obj_Status != g_uc_Relevant_Object_Status)
+                                {
+                                    g_uc_Prev_Relevant_Obj_Status = g_uc_Relevant_Object_Status;
+                                }
+
+                                if (g_uc_Rel_Obj_Abs_Once_Displayed == 0)
+                                {
+                                 
+                                    fn_uc_Display_Distance_Relevant_Object_Status(g_us_Distance_To_Be_Displayed, enmNOT_RELEVANT);
+                                    g_uc_Rel_Obj_Abs_Once_Displayed = 1;
+                                     
+                                    g_us_Relevant_Obj_Counter = 0;
+                                    g_us_Distance_To_Be_Displayed = 0xFFF;
+                                    g_us_Relevant_Obj_Same_Dir_Counter = 0;
+                                    g_us_Relevant_Obj_Stationary_Counter = 0;
+                                    g_us_Relevant_Obj_Oncoming_Counter = 0;
+
+                                    g_us_Pre_Distance_To_Be_Displayed = g_us_Distance_To_Be_Displayed;
+                                }
+                            }
+                        }    
+                        break;
+                        
+                    }
+                    
+
+                #if DEBUG_ON
+                     sprintf((char *)&g_uc_Transmit_Buffer[0],"\tStat:%d \tNot Rel:%d \t Rel:%d",g_uc_Relevant_Object_Status, g_us_Relevant_Obj_Counter,g_us_Relevant_Obj_Present_Counter);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                #endif
+                     
+                     
+                 }
+             }     
+            break;
+             
+             #if DEBUG_X_CORD_VELOCITY
+             case CAN_RX_ID_OF_X_CORD_VELOCITY_FROM_ECU:
+             {
+                g_us_Velocity_To_Be_Displayed = g_uc_ECU_Data_Msg[1]<< 24;
+                g_us_Velocity_To_Be_Displayed = g_us_Velocity_To_Be_Displayed | (g_uc_ECU_Data_Msg[2] << 16);
+                g_us_Velocity_To_Be_Displayed = g_us_Velocity_To_Be_Displayed | (g_uc_ECU_Data_Msg[3] << 8);
+                g_us_Velocity_To_Be_Displayed = g_us_Velocity_To_Be_Displayed | (g_uc_ECU_Data_Msg[4]);
+
+                #if DEBUG_ON
+                    sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Vel: %s%d ", (g_uc_ECU_Data_Msg[0]!=0)?"-":"+",  g_us_Velocity_To_Be_Displayed);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                #endif
+             }
+             break;
+             #endif
+             
+             
+             case CAN_RX_ID_OF_REL_OBJECT_AND_ALARM_BRAKE_DATA:
+             {
+                g_uc_Relevant_Object_Status = g_uc_ECU_Data_Msg[1];
+
+                #if DEBUG_ON
+                    sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Rel: %d ", g_uc_Relevant_Object_Status);	
+                    fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);		
+                #endif
+             }
+             break;//LCD
+
+			 case CAN_RX_ID_OF_OLED_MESSAGES:
+			 {
+				g_uc_Message_Display_Priority =  g_uc_ECU_Data_Msg[0];
+				 
+				if(g_uc_Message_Display_Priority == 1)
+				{
+					g_uc_Flag_Superior_Priority_Msg_Received = 1;
+					
+					// Parse Priority 1 Messages			
+					g_uc_Superior_Priority_Msg_Number = g_uc_ECU_Data_Msg[1];
+					g_uc_Flag_Superior_Priority_Display_Status = g_uc_ECU_Data_Msg[2];
+					
+				}
+				else if(g_uc_Message_Display_Priority == 2)
+				{
+					g_uc_Flag_High_Priority_Msg_Received = 1;
+					
+					// Parse Priority 2 Messages
+					g_uc_High_Priority_Error_Type = g_uc_ECU_Data_Msg[1];
+					
+					if(1 == g_uc_High_Priority_Error_Type)
+					{
+						g_ui_Accelerator_Cutoff_Error_Status = 0;
+						
+						g_ui_Accelerator_Cutoff_Error_Status = ((unsigned int)g_uc_ECU_Data_Msg[2] | g_ui_Accelerator_Cutoff_Error_Status);
+						g_ui_Accelerator_Cutoff_Error_Status = ((unsigned int)(g_uc_ECU_Data_Msg[3] <<  8) | g_ui_Accelerator_Cutoff_Error_Status);
+						g_ui_Accelerator_Cutoff_Error_Status = ((unsigned int)(g_uc_ECU_Data_Msg[4] << 16) | g_ui_Accelerator_Cutoff_Error_Status);
+						g_ui_Accelerator_Cutoff_Error_Status = ((unsigned int)(g_uc_ECU_Data_Msg[5] << 24) | g_ui_Accelerator_Cutoff_Error_Status);
+					}
+					else
+					{
+						
+					}
+					
+				}
+				else if(g_uc_Message_Display_Priority == 3)
+				{
+					g_uc_Flag_Moderate_Priority_Msg_Received = 1;
+					
+					// Parse Priority 3 Messages
+					g_uc_Moderate_Priority_Msg_No = g_uc_ECU_Data_Msg[1];
+				}
+				else if(g_uc_Message_Display_Priority == 4)
+				{
+					g_uc_Flag_Low_Priority_Msg_Received = 1;
+					
+					// Parse Priority 4 Messages
+					g_uc_Low_Priority_Module_Type = g_uc_ECU_Data_Msg[1];
+					
+					if(1 == g_uc_Low_Priority_Module_Type)
+					{
+						g_ui_Limp_Mode_Error_Status = 0;
+						
+						g_ui_Limp_Mode_Error_Status = ((unsigned int)g_uc_ECU_Data_Msg[2] | g_ui_Limp_Mode_Error_Status);
+						g_ui_Limp_Mode_Error_Status = ((unsigned int)(g_uc_ECU_Data_Msg[3] <<  8) | g_ui_Limp_Mode_Error_Status);
+						g_ui_Limp_Mode_Error_Status = ((unsigned int)(g_uc_ECU_Data_Msg[4] << 16) | g_ui_Limp_Mode_Error_Status);
+						g_ui_Limp_Mode_Error_Status = ((unsigned int)(g_uc_ECU_Data_Msg[5] << 24) | g_ui_Limp_Mode_Error_Status);
+					}
+					else if(2 == g_uc_Low_Priority_Module_Type)
+					{
+						
+					}
+					else if(3 == g_uc_Low_Priority_Module_Type)
+					{
+						
+					}
+					else
+					{
+						
+					}
+				}
+
+			 }
+			 break;			 
+                  
+        }
+		
+		CAN_ClearITPendingBit(CAN_IT_FMP0);	
+}
+
+/*******************************************************************************
+* Function Name  : CAN_RX1_IRQHandler
+* Description    : This function handles CAN RX1 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CAN_RX1_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : CAN_SCE_IRQHandler
+* Description    : This function handles CAN SCE interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CAN_SCE_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : EXTI9_5_IRQHandler
+* Description    : This function handles External lines 9 to 5 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI9_5_IRQHandler(void)
+{
+
+//	if(!CRUISE_ON)
+//	Cruz_On_Off_Bit=BIT_HIGH;
+//	else
+//	Cruz_On_Off_Bit=BIT_LOW;
+	
+//	if(!TEST_KEY)
+//	Test_Ki_Bit=BIT_HIGH;
+//	else
+//	Test_Ki_Bit=BIT_LOW;	
+	
+ EXTI_ClearITPendingBit(EXTI_Line5);
+ EXTI_ClearITPendingBit(EXTI_Line6);
+ EXTI_ClearITPendingBit(EXTI_Line7);
+ EXTI_ClearITPendingBit(EXTI_Line8);
+}
+
+/*******************************************************************************
+* Function Name  : TIM1_BRK_IRQHandler
+* Description    : This function handles TIM1 Break interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM1_BRK_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM1_UP_IRQHandler
+* Description    : This function handles TIM1 overflow and update interrupt
+*                  request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM1_UP_IRQHandler(void)
+{
+  
+}
+
+/*******************************************************************************
+* Function Name  : TIM1_TRG_COM_IRQHandler
+* Description    : This function handles TIM1 Trigger and commutation interrupts
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM1_TRG_COM_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM1_CC_IRQHandler
+* Description    : This function handles TIM1 capture compare interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM1_CC_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : TIM2_IRQHandler
+* Description    : This function handles TIM2 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM2_IRQHandler(void)
+{
+
+}
+
+/*******************************************************************************
+* Function Name  : TIM3_IRQHandler
+* Description    : This function handles TIM3 global interrupt request.
+* Input          : Key inputs to Increment and Decrement Speed
+* Output         : Speed Out ( Toggling of Pin)
+* Return         : None
+* Author         : Mr.Naresh S. Partole, 18th July 2017
+*******************************************************************************/
+void TIM3_IRQHandler(void)	// interrupt in 10uS // checked on 31st May 2017
+{
+	
+  TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+}
+
+/*******************************************************************************
+* Function Name  : TIM4_IRQHandler
+* Description    : This function handles TIM4 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM4_IRQHandler(void)
+{
+  TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+}
+
+/*******************************************************************************
+* Function Name  : I2C1_EV_IRQHandler
+* Description    : This function handles I2C1 Event interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void I2C1_EV_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : I2C1_ER_IRQHandler
+* Description    : This function handles I2C1 Error interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void I2C1_ER_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : I2C2_EV_IRQHandler
+* Description    : This function handles I2C2 Event interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void I2C2_EV_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : I2C2_ER_IRQHandler
+* Description    : This function handles I2C2 Error interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void I2C2_ER_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : SPI1_IRQHandler
+* Description    : This function handles SPI1 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SPI1_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : SPI2_IRQHandler
+* Description    : This function handles SPI2 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SPI2_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : USART1_IRQHandler
+* Description    : This function handles USART1 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USART1_IRQHandler(void)
+{
+  if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+	{   	
+	  /* Read one byte from the receive data register */
+	     g_uc_Uart1_Rx_Buf[g_uc_Uart1_Wr_Data_Ctr]  = (USART_ReceiveData(USART1) & 0xFF); 
+		/*		 ECU_TX_Byte (gprsRXBuffer[gprsWriteDataCounter]);  */
+         
+		
+        g_uc_Uart1_Wr_Data_Ctr++;
+		 if(g_uc_Uart1_Wr_Data_Ctr == UART_BUF_SIZE) g_uc_Uart1_Wr_Data_Ctr=0;
+	}
+	USART_ClearITPendingBit(USART1, USART_IT_RXNE);	
+}
+
+/*******************************************************************************
+* Function Name  : USART2_IRQHandler
+* Description    : This function handles USART2 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USART2_IRQHandler(void)			// 26 May 2017
+{
+  if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
+	{   	
+	  /* Read one byte from the receive data register */
+	     g_uc_Uart2_Rx_Buf[g_uc_Uart2_Wr_Data_Ctr]  = (USART_ReceiveData(USART2) & 0xFF); 
+		/*		 ECU_TX_Byte (gprsRXBuffer[gprsWriteDataCounter]);  */
+		g_uc_Uart2_Wr_Data_Ctr++;
+		 if(g_uc_Uart2_Wr_Data_Ctr==UART_BUF_SIZE) g_uc_Uart2_Wr_Data_Ctr=0;
+	}
+	
+	USART_ClearITPendingBit(USART2, USART_IT_RXNE);	
+}
+
+/*******************************************************************************
+* Function Name  : USART3_IRQHandler
+* Description    : This function handles USART3 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USART3_IRQHandler(void)
+{
+    if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{   	
+	  /* Read one byte from the receive data register */
+        if(0 == g_uc_Power_ON_Flag)
+        {
+            g_uc_Uart3_Rx_Buf[g_uc_Uart3_Wr_Data_Ctr]  = (USART_ReceiveData(USART3) & 0xFF); 
+
+            if(0x03 == g_uc_Uart3_Rx_Buf[g_uc_Uart3_Wr_Data_Ctr])
+            {
+                g_bln_UART_Interrupt = 1;
+                g_uc_Uart3_Wr_Data_Ctr++;
+                if(g_uc_Uart3_Wr_Data_Ctr >= UART_BUF_SIZE) 
+                {
+                    g_uc_Uart3_Wr_Data_Ctr = 0;
+                }            
+                g_uc_Uart3_Rx_Buf[g_uc_Uart3_Wr_Data_Ctr] = '\0';
+            }
+            
+            g_v_ui_Ticker_RFID_Absent_Timeout = RFID_CARD_ABSENT_TIMEOUT;
+            
+            g_uc_Uart3_Wr_Data_Ctr ++;
+            
+            // Check for index roll over
+            if(g_uc_Uart3_Wr_Data_Ctr >= UART_BUF_SIZE) 
+            {
+                g_uc_Uart3_Wr_Data_Ctr=0;
+            }
+        }
+	}
+	
+	USART_ClearITPendingBit(USART3, USART_IT_RXNE);	
+}
+
+/*******************************************************************************
+* Function Name  : EXTI15_10_IRQHandler
+* Description    : This function handles External lines 15 to 10 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI15_10_IRQHandler(void)
+{
+}
+
+/*******************************************************************************
+* Function Name  : RTCAlarm_IRQHandler
+* Description    : This function handles RTC Alarm interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void RTCAlarm_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : USBWakeUp_IRQHandler
+* Description    : This function handles USB WakeUp interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void USBWakeUp_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM8_BRK_IRQHandler
+* Description    : This function handles TIM8 Break interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM8_BRK_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM8_UP_IRQHandler
+* Description    : This function handles TIM8 overflow and update interrupt
+*                  request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM8_UP_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM8_TRG_COM_IRQHandler
+* Description    : This function handles TIM8 Trigger and commutation interrupts
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM8_TRG_COM_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM8_CC_IRQHandler
+* Description    : This function handles TIM8 capture compare interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM8_CC_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : ADC3_IRQHandler
+* Description    : This function handles ADC3 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ADC3_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : FSMC_IRQHandler
+* Description    : This function handles FSMC global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void FSMC_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : SDIO_IRQHandler
+* Description    : This function handles SDIO global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SDIO_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM5_IRQHandler
+* Description    : This function handles TIM5 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM5_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : SPI3_IRQHandler
+* Description    : This function handles SPI3 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SPI3_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : UART4_IRQHandler
+* Description    : This function handles UART4 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void UART4_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : UART5_IRQHandler
+* Description    : This function handles UART5 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void UART5_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM6_IRQHandler
+* Description    : This function handles TIM6 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM6_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : TIM7_IRQHandler
+* Description    : This function handles TIM7 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM7_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA2_Channel1_IRQHandler
+* Description    : This function handles DMA2 Channel 1 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA2_Channel1_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA2_Channel2_IRQHandler
+* Description    : This function handles DMA2 Channel 2 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA2_Channel2_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA2_Channel3_IRQHandler
+* Description    : This function handles DMA2 Channel 3 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA2_Channel3_IRQHandler(void)
+{}
+
+/*******************************************************************************
+* Function Name  : DMA2_Channel4_5_IRQHandler
+* Description    : This function handles DMA2 Channel 4 and DMA2 Channel 5
+*                  interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA2_Channel4_5_IRQHandler(void)
+{}
+	
+
+/******************* (C) COPYRIGHT 2013 SSPL *****END OF FILE*****************/
+	
