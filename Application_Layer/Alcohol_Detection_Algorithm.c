@@ -1,5 +1,8 @@
 #include "main.h"
 
+#define PUMP_TURN_ON_TIMEOUT				5000			//5 secs
+
+
 unsigned char g_uc_Alcohol_State_Machine = 0;
 unsigned int g_ui_ADC_CH10_Data = 0;
 unsigned int g_ui_ADC_CH11_Data = 0;
@@ -29,11 +32,18 @@ unsigned int g_ui_Base_Reading = 0;
 float g_f_BAC = 0;
 tdst_Temp_Calculated_Values gost_Temperature_Data;
 tdst_Pressure_Calculated_Values gost_Pressure_Calculated_Values;
+volatile unsigned int g_vui_Ticker_Pump_Turn_On_Timeout = 0;
+unsigned char g_uc_Clear_Out_Residue = 0;
 
 
+unsigned char Get_Flag_Status_Clear_Residue(void)
+{
+	return g_uc_Clear_Out_Residue;
+}
 
 void fn_uc_Handle_Alcohol_Test(void)
 {
+		
 	switch(g_uc_Alcohol_State_Machine)
 	{
 		case STATE_WAIT_FOR_TEST_START:
@@ -41,11 +51,26 @@ void fn_uc_Handle_Alcohol_Test(void)
 			// if Start Alcohol test Msg received from DMS then start timer
 			if(1 == g_uc_Flag_Start_Alcohol_Test)
 			{
-				// Go to Next state and wait for User to blow on sensor
-				g_vui_Ticker_Alcohol_Test_Timeout_Timer = ALCOHOL_TEST_TIMEOUT_TIMER;
+				if(0 == g_uc_Clear_Out_Residue)
+				{
+					g_uc_Clear_Out_Residue = 1;
+					// start AIR Sampling pump to clear out alcohol residue if any
+					TURN_ON_AIR_SAMPLING_PUMP;	
+					g_vui_Ticker_Pump_Turn_On_Timeout = PUMP_TURN_ON_TIMEOUT;
+					//blink yellow LED
+				}
+				else
+				{
+					if(!g_vui_Ticker_Pump_Turn_On_Timeout)
+					{
+						g_uc_Clear_Out_Residue = 0;
+						g_vui_Ticker_Alcohol_Test_Timeout_Timer = ALCOHOL_TEST_TIMEOUT_TIMER;
+						TURN_OFF_AIR_SAMPLING_PUMP;
+						g_uc_Alcohol_State_Machine++;		
+					}
+				
+				}			
 			}
-			
-			g_uc_Alcohol_State_Machine++;
 		}
 		break;
 		

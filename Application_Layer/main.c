@@ -73,7 +73,7 @@ int main(void)
 		g_uc_Main_State_Machine = enm_STATE_HANDLE_HEARTBEAT;
 
 		#if 1//DEBUG_ON
-					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Welcome to Starkenn Technologies \r\n Build Version: AB_BaseCode.hex");	
+					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Welcome to Starkenn Technologies \r\n Build Version: AB_StateMachine.hex");	
 			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
 		#endif
 

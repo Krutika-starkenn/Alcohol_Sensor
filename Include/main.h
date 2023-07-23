@@ -59,6 +59,7 @@ extern volatile unsigned int g_vui_Ticker_Heartbeat_LED;
 extern volatile unsigned int g_vui_Ticker_Power_ON_Wait_Time;
 extern volatile unsigned int g_vui_Ticker_Get_Sensor_Data_Cmd_Interval;
 extern volatile unsigned int g_vui_Ticker_ADC_Voltage_Level_Scanning_Time;
+extern volatile unsigned int g_vui_Ticker_Pump_Turn_On_Timeout;
 
 extern unsigned char g_uc_Flag_LED_State;
 extern unsigned char g_uc_Flag_Send_Data;
