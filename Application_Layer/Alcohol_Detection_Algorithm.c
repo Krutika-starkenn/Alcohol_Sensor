@@ -35,10 +35,18 @@ tdst_Pressure_Calculated_Values gost_Pressure_Calculated_Values;
 volatile unsigned int g_vui_Ticker_Pump_Turn_On_Timeout = 0;
 unsigned char g_uc_Clear_Out_Residue = 0;
 
+unsigned char fn_Get_Alcohol_Test_Start_Status(void);
+unsigned char Get_Flag_Status_Clear_Residue(void);
+
 
 unsigned char Get_Flag_Status_Clear_Residue(void)
 {
 	return g_uc_Clear_Out_Residue;
+}
+
+void Set_Clear_Flag(unsigned char *arg_Flag_To_Be_Changed, unsigned char arg_uc_Status)
+{
+	*arg_Flag_To_Be_Changed = arg_uc_Status;
 }
 
 void fn_uc_Handle_Alcohol_Test(void)
@@ -49,11 +57,12 @@ void fn_uc_Handle_Alcohol_Test(void)
 		case STATE_WAIT_FOR_TEST_START:
 		{
 			// if Start Alcohol test Msg received from DMS then start timer
-			if(1 == g_uc_Flag_Start_Alcohol_Test)
+			if(1 == fn_Get_Alcohol_Test_Start_Status())
 			{
-				if(0 == g_uc_Clear_Out_Residue)
+				if(0 == Get_Flag_Status_Clear_Residue())
 				{
-					g_uc_Clear_Out_Residue = 1;
+					//g_uc_Clear_Out_Residue = 1;
+					Set_Clear_Flag(&g_uc_Clear_Out_Residue, SET);
 					// start AIR Sampling pump to clear out alcohol residue if any
 					TURN_ON_AIR_SAMPLING_PUMP;	
 					g_vui_Ticker_Pump_Turn_On_Timeout = PUMP_TURN_ON_TIMEOUT;
@@ -63,12 +72,12 @@ void fn_uc_Handle_Alcohol_Test(void)
 				{
 					if(!g_vui_Ticker_Pump_Turn_On_Timeout)
 					{
-						g_uc_Clear_Out_Residue = 0;
+						//g_uc_Clear_Out_Residue = 0;
+						Set_Clear_Flag(&g_uc_Clear_Out_Residue, RESET);					
 						g_vui_Ticker_Alcohol_Test_Timeout_Timer = ALCOHOL_TEST_TIMEOUT_TIMER;
 						TURN_OFF_AIR_SAMPLING_PUMP;
 						g_uc_Alcohol_State_Machine++;		
-					}
-				
+					}				
 				}			
 			}
 		}
@@ -77,49 +86,45 @@ void fn_uc_Handle_Alcohol_Test(void)
 		case STATE_MONITOR_AIRFLOW:
 		{
 					// Monitor air flow on pressure sensor
-					//fn_v_Monitor_Pressure_And_Temperature();
-		
-          /*  if(0 == g_uc_Take_Initial_Readings)
-            {
-                gost_Pressure_Calculated_Values.i_Temp_Compensated_Pressure = AIR_FLOW_DETECTION_THRESHOLD;
-                sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Kindly wait initializing the Breathalyzer....");
-                fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-            }*/
+					gost_Pressure_Calculated_Values.i_Temp_Compensated_Pressure = Get_Pressure_Val();
+
+          
 			// if Pressure exceeds threshold then go to next state to turn ON Pump
             
 			if(gost_Pressure_Calculated_Values.i_Temp_Compensated_Pressure >= AIR_FLOW_DETECTION_THRESHOLD)
 			{
 				// Send Alcohol Test Started Message to ECU or user
 				//fn_uc_Send_Alcohol_Test_Start_Status_To_ECU(ALCOHOL_TEST_STARTED);
-				if(1 == g_uc_Take_Initial_Readings)
-				{
-						fn_uc_Send_String_On_Debug_Port("\r\n Blow detected");
-				}
+				
 				// Go to Next State to Start collecting Air Sample
-				g_uc_Flag_Air_Sampling_Pump_State = 1;
+				//g_uc_Flag_Air_Sampling_Pump_State = 1;
+				Set_Clear_Flag(&g_uc_Flag_Air_Sampling_Pump_State, SET);
+					
 				g_uc_Alcohol_State_Machine = STATE_HANDLE_AIR_SUCTION_PUMP;
 				g_vui_Ticker_Timeout_For_Pump_Activation_Timer = PUMP_ACTIVATION_TIMEOUT;
-				
-				GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_RESET);
-				break;
 			}
-			
-			if(1 == g_uc_Flag_Start_Alcohol_Test)
-			{
-				if(!g_vui_Ticker_Alcohol_Test_Timeout_Timer)
+			else
+			{			
+				if(1 == g_uc_Flag_Start_Alcohol_Test)
 				{
-					// Send Alcohol Test Timeout Message to ECU to display on HMI
-					//fn_uc_Send_Alcohol_Test_Start_Status_To_ECU(ALCOHOL_TEST_TIMEOUT);
-					
-					// Restart Test
-					g_uc_Alcohol_Test_Status = TEST_TIMEOUT;
-					g_us_Measured_Alcohol_Level = 0;
-					g_uc_Alcohol_State_Machine = STATE_SEND_RESULT_TO_ECU;
+					if(!g_vui_Ticker_Alcohol_Test_Timeout_Timer)
+					{
+						// Send Alcohol Test Timeout Message to ECU to display on HMI
+						//fn_uc_Send_Alcohol_Test_Start_Status_To_ECU(ALCOHOL_TEST_TIMEOUT);
+						
+						// Restart Test
+						g_uc_Alcohol_Test_Status = TEST_TIMEOUT;
+						g_us_Measured_Alcohol_Level = 0;
+						g_uc_Alcohol_State_Machine = STATE_SEND_RESULT_TO_ECU;
+					}
 				}
-			}
-			else			
-			{
-				g_uc_Alcohol_State_Machine = STATE_WAIT_FOR_TEST_START;
+				else			
+				{
+					g_uc_Alcohol_State_Machine = STATE_WAIT_FOR_TEST_START;
+					//g_uc_Flag_Start_Alcohol_Test = 0;
+					Set_Clear_Flag(&g_uc_Flag_Start_Alcohol_Test, RESET);					
+						
+				}
 			}
 		}
 		break;
@@ -128,37 +133,21 @@ void fn_uc_Handle_Alcohol_Test(void)
 		{
 			if(0 == g_uc_Flag_Air_Sampling_Pump_State)
 			{
-				// Turn Off Pump
-//                TURN_OFF_AIR_SAMPLING_PUMP;
-//                GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_RESET);
 				// Go to Pressure monitoring state
 				g_uc_Alcohol_State_Machine = STATE_PROCESS_SAMPLES;
 			}
 			else if((1 == g_uc_Flag_Air_Sampling_Pump_State) && (0 == g_vui_Ticker_Timeout_For_Pump_Activation_Timer))
 			{
-//                if(1 == g_uc_Take_Initial_Readings)
-//                {
-//                    fn_uc_Send_String_On_Debug_Port("\r\n Capturing data");
-//                }
-//                else
-//                {
-//                    fn_uc_Send_String_On_Debug_Port("\r\n Processing....");
-//                }
-                GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_SET);
 				// start AIR Sampling pump and start timer for 
 				TURN_ON_AIR_SAMPLING_PUMP;
 				
 				// Start sampling timer
 				g_vui_Ticker_Alcohol_Sensor_Data_Sampling_Timer = ALCOHOL_SENSOR_DATA_SAMPLING_TIME;
-                g_vui_Ticker_Timeout_For_Pump_Activation_Timer = PUMP_ON_TIMEOUT;
+        g_vui_Ticker_Timeout_For_Pump_Activation_Timer = PUMP_ON_TIMEOUT;
 				
 				// Go for Sampling
-				g_uc_Alcohol_State_Machine = STATE_START_ALCOHOL_SENSOR_DATA_SAMPLING;
-				
-				#if DEBUG_ALCOHOL_SENSOR_RAW_ADC_DATA
-					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Alc ADC Raw Data:");
-					fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-				#endif
+				g_uc_Alcohol_State_Machine = STATE_START_ALCOHOL_SENSOR_DATA_SAMPLING;		
+				g_us_1msec_Reading_Index = 0;
 			}
 			else
 			{
@@ -171,60 +160,49 @@ void fn_uc_Handle_Alcohol_Test(void)
 		{
             
 			if(g_vui_Ticker_Alcohol_Sensor_Data_Sampling_Timer)
-//			while(g_vui_Ticker_Alcohol_Sensor_Data_Sampling_Timer)
-			{
-                
-                if(0 == g_uc_Take_Initial_Readings)
-                {
-                    if((g_vui_Ticker_Alcohol_Sensor_Data_Sampling_Timer%1000) == 0)
-                    {
-                        sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n %d... ",g_vui_Ticker_Alcohol_Sensor_Data_Sampling_Timer/1000);
-                        fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-                    }
-                }
-                
-                if(!g_vui_Ticker_Alcohol_Sensor_Sampling_Interval_Integration)
-                {
-                    g_vui_Ticker_Alcohol_Sensor_Sampling_Interval_Integration = 1;
-                    if(SUCCESS != fn_uc_Get_Alcohol_Sensor_Raw_ADC_Data(&g_us_Alcohol_Sensor_Raw_ADC_Data))
-                    {
-                        
-                    }
-                    
-                    g_a_us_1msec_Readings[g_us_1msec_Reading_Index] = g_us_Alcohol_Sensor_Raw_ADC_Data;
+			{					
+					if(!g_vui_Ticker_Alcohol_Sensor_Sampling_Interval_Integration)
+					{
+							g_vui_Ticker_Alcohol_Sensor_Sampling_Interval_Integration = 1;
+							if(SUCCESS != fn_uc_Get_Alcohol_Sensor_Raw_ADC_Data(&g_us_Alcohol_Sensor_Raw_ADC_Data))
+							{
+									
+							}
+							
+							g_a_us_1msec_Readings[g_us_1msec_Reading_Index] = g_us_Alcohol_Sensor_Raw_ADC_Data;
 
-                    g_ui_Average_Val += g_a_us_1msec_Readings[g_us_1msec_Reading_Index];
-                    g_us_1msec_Reading_Index++;
-                    if(g_us_1msec_Reading_Index >= 10)
-                    {
-                        g_ui_Average_Val /= 10;
-                        g_a_us_10msec_Readings[g_us_10ms_Index] = g_ui_Average_Val;
-                        g_us_10ms_Index ++;
-                        g_us_1msec_Reading_Index = 0;
-                        g_ui_Average_Val = 0;
-                    }
-                }
-			
-			#if DEBUG_ALCOHOL_SENSOR_RAW_ADC_DATA
-				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n %d", g_us_Alcohol_Sensor_Raw_ADC_Data);
-				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-			#endif
+							g_ui_Average_Val += g_a_us_1msec_Readings[g_us_1msec_Reading_Index];
+							g_us_1msec_Reading_Index++;
+							if(g_us_1msec_Reading_Index >= 10)
+							{
+									g_ui_Average_Val /= 10;
+									g_a_us_10msec_Readings[g_us_10ms_Index] = g_ui_Average_Val;
+									g_us_10ms_Index ++;
+									g_us_1msec_Reading_Index = 0;
+									g_ui_Average_Val = 0;
+							}
+					}
+
+					#if DEBUG_ALCOHOL_SENSOR_RAW_ADC_DATA
+						sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n %d", g_us_Alcohol_Sensor_Raw_ADC_Data);
+						fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
+					#endif
 						
-                if(!g_vui_Ticker_Timeout_For_Pump_Activation_Timer)
-                {
-                    g_vui_Ticker_Timeout_For_Pump_Activation_Timer = 20000;
-                    TURN_OFF_AIR_SAMPLING_PUMP;
-                }
+					if(!g_vui_Ticker_Timeout_For_Pump_Activation_Timer)
+					{
+							g_vui_Ticker_Timeout_For_Pump_Activation_Timer = 20000;
+							TURN_OFF_AIR_SAMPLING_PUMP;
+					}
 			
-            }
-            else
-            {
-                g_uc_Flag_Air_Sampling_Pump_State = 0;
-                g_uc_Alcohol_State_Machine = STATE_HANDLE_AIR_SUCTION_PUMP;
-                GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_RESET);
-            }
-            
-            
+        }
+				else
+				{
+						//g_uc_Flag_Air_Sampling_Pump_State = 0;
+						Set_Clear_Flag(&g_uc_Flag_Air_Sampling_Pump_State, RESET);
+				
+						g_uc_Alcohol_State_Machine = STATE_HANDLE_AIR_SUCTION_PUMP;
+						GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_RESET);
+				}
 		}
 		break;
 		
@@ -243,7 +221,7 @@ void fn_uc_Handle_Alcohol_Test(void)
                 
                 g_a_us_10msec_Readings[l_us_Process_Result_Index] = 0;
             }
-
+						g_ui_Average_Val /= 10;
             g_us_10ms_Index = 0;
             g_us_1msec_Reading_Index = 0;
 			
@@ -257,120 +235,38 @@ void fn_uc_Handle_Alcohol_Test(void)
 		case STATE_SEND_RESULT_TO_ECU:
 		{
 			// Send Result to ECU
-            signed int l_si_Temp_Val = 0;
+            //signed int l_si_Temp_Val = 0;
             float l_f_BAC = 0;
             
 			//fn_uc_Send_Alcohol_Test_Result_To_ECU(g_uc_Alcohol_Test_Status, g_us_Measured_Alcohol_Level);
-			g_uc_Alcohol_State_Machine = STATE_MONITOR_AIRFLOW;
-            
+			      
             if(0 == g_uc_Take_Initial_Readings)
             {
                 g_uc_Take_Initial_Readings = 1;
-                g_ui_Base_Reading = g_ui_Average_Val;
-                sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Breathalyzer can now be used");
+								sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Breathalyzer can now be used");
                 fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
                 
-                l_si_Temp_Val = g_ui_Average_Val - g_ui_Base_Reading;
-                l_f_BAC = l_si_Temp_Val * 0.000007495164;
+//                l_si_Temp_Val = g_ui_Average_Val - g_ui_Base_Reading;
+//                l_f_BAC = l_si_Temp_Val * 0.000007495164;
+									l_f_BAC = g_ui_Average_Val * 0.000007495164;
                 
             }
-            else
-            {
-                l_si_Temp_Val = g_ui_Average_Val - 1030000;
-                l_f_BAC = l_si_Temp_Val * 0.000007495164;
-                
-                if(l_f_BAC < 0)
-                {
-                    l_f_BAC = 0;
-                }
-                
-            }
-            g_f_BAC = l_f_BAC;
-//            sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Integral: %d\t Estimated BAC: %.3f",g_ui_Average_Val, l_f_BAC);
-            sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n%.3f", l_f_BAC);
+            
+            g_f_BAC = l_f_BAC;sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n%.3f", l_f_BAC);
             fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
             
             g_ui_Average_Val = 0;
+						g_uc_Alcohol_State_Machine = STATE_WAIT_FOR_TEST_START;     
             
 		}
 		break;
+		
+		default:
+			break;
 	}
 	
 }
 
-
-unsigned char fn_uc_Get_Alcohol_Sensor_Raw_ADC_Data(unsigned short *arg_ptr_Result)
-{
-	unsigned short l_us_Sampling_Counter = 0;
-	unsigned int l_ui_Instanteneous_Data = 0;
-	unsigned int l_ui_Sample_Addition = 0;
-		
-	*arg_ptr_Result = 0;
-
-	for(l_us_Sampling_Counter = 0 ; l_us_Sampling_Counter < ALCOHOL_SENSOR_ADC_SAMPLING_COUNTS; l_us_Sampling_Counter++)
-	{
-	
-		if(SUCCESS == fn_Get_ADC_Channel_Data(ADC_1, ALCOHOL_SENSOR_ANALOG_INPUT_READ_CHANNEL, &l_ui_Instanteneous_Data))
-		{		
-			//sprintf(&g_uc_Transmit_Buffer[0],"\r\n Inst data - %d", l_ui_Instanteneous_Data);
-			//fn_UART_Send_String(g_uc_Transmit_Buffer);
-			#if ALCOHOL_ADC_DEBUG	
-			sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Inst data - %d", l_ui_Instanteneous_Data);
-			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-			#endif
-			l_ui_Sample_Addition = l_ui_Sample_Addition + l_ui_Instanteneous_Data;
-
-			#if ALCOHOL_ADC_DEBUG			
-				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Sampling data - %d", l_ui_Sample_Addition);
-//				fn_UART_Send_String(g_uc_Transmit_Buffer);		
-				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);			
-			#endif			
-			
-			l_ui_Instanteneous_Data = 0;
-		}
-		else
-		{
-			
-			sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n ADC Read Fail");
-			//fn_UART_Send_String(g_uc_Transmit_Buffer);
-			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-			
-			return FAILURE;
-		}
-	}
-    
-    l_ui_Sample_Addition = (l_ui_Sample_Addition / ALCOHOL_SENSOR_ADC_SAMPLING_COUNTS);
-	
-	*arg_ptr_Result = (unsigned short)l_ui_Sample_Addition ;
-    
-		
-	
-//    if(SUCCESS == fn_Get_ADC_Channel_Data(ADC_1, ADC_Channel_10, &l_ui_Instanteneous_Data))
-//    {		
-//        sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n 1 : %d", l_ui_Instanteneous_Data);
-//			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-//    }
-//    
-//    if(SUCCESS == fn_Get_ADC_Channel_Data(ADC_1, ADC_Channel_11, &l_ui_Instanteneous_Data))
-//    {		
-//        sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n 2 : %d", l_ui_Instanteneous_Data);
-//			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-//    }
-//    
-//    if(SUCCESS == fn_Get_ADC_Channel_Data(ADC_1, ADC_Channel_12, &l_ui_Instanteneous_Data))
-//    {		
-//			sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n 3 : %d", l_ui_Instanteneous_Data);
-//			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-//    }
-//    
-//    if(SUCCESS == fn_Get_ADC_Channel_Data(ADC_1, ADC_Channel_13, &l_ui_Instanteneous_Data))
-//    {		
-//			sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n 4 : %d", l_ui_Instanteneous_Data);
-//			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
-//    }
-
-	return SUCCESS;
-}
 
 
 unsigned char fn_uc_Send_Alcohol_Test_Start_Status_To_ECU(unsigned char arg_uc_Status)
@@ -578,4 +474,10 @@ unsigned fn_uc_Handle_Cap_Vibrations(void)
         g_f_BAC = 0;
     }
     return SUCCESS;
+}
+
+
+unsigned char fn_Get_Alcohol_Test_Start_Status(void)
+{
+	return g_uc_Flag_Start_Alcohol_Test;
 }

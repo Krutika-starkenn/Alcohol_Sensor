@@ -450,6 +450,11 @@
               <FileType>1</FileType>
               <FilePath>..\Hardware_Abstraction_Layer\Pressure_Sensor_XGPG6857D.c</FilePath>
             </File>
+            <File>
+              <FileName>Alcohol_Sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware_Abstraction_Layer\Alcohol_Sensor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

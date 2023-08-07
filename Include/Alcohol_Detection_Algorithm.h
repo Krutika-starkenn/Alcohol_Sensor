@@ -7,16 +7,18 @@
 #define START_VIBRATION                                    GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_SET)
 #define STOP_VIBRATION                                     GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_RESET)
 
-#define ALCOHOL_SENSOR_ADC_SAMPLING_COUNTS				1000  //200
-#define AIR_FLOW_DETECTION_THRESHOLD					2000//200       0.2 psi
+#define ALCOHOL_SENSOR_ADC_SAMPLING_COUNTS									1000  //200
+#define AIR_FLOW_DETECTION_THRESHOLD												2000//200       0.2 psi
 
 //#define ALCOHOL_SENSOR_ANALOG_INPUT_READ_CHANNEL			    ADC_Channel_10
 #define ALCOHOL_SENSOR_ANALOG_INPUT_READ_CHANNEL		ADC_Channel_0
 #define BATTERY_LEVEL_READ_CHANNEL								ADC_Channel_1
 
+#define MAX_ALCOHOL_SAMPLES													10
 
-#define ALCOHOL_SENSOR_DATA_SAMPLING_TIME				10000//3000		//	3 Sec
-#define ALCOHOL_TEST_TIMEOUT_TIMER						30000		    // 30 Sec
+
+#define ALCOHOL_SENSOR_DATA_SAMPLING_TIME								3000		//	3 Sec
+#define ALCOHOL_TEST_TIMEOUT_TIMER											30000		    // 30 Sec
 #define PUMP_ACTIVATION_TIMEOUT                         2000
 #define PUMP_ON_TIMEOUT                                 200
 

@@ -78,5 +78,7 @@ void fn_v_XGZP6857D_Pressure_SensorMonitor_Pressure_And_Temperature(void);
 void fn_v_XGZP6857D_Pressure_Sensor_Generate_Dummy_Clock(void);
 
 unsigned char fn_uc_Read_I2C_Byte_From_XGZP6857D_Pressure_Sensor(void);
+extern unsigned int Get_Pressure_Val(void);
+
 
 #endif

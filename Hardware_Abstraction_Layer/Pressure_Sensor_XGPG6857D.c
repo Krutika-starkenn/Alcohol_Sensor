@@ -420,3 +420,10 @@ unsigned char fn_uc_Read_I2C_Byte_From_XGZP6857D_Pressure_Sensor(void)
 	
 	return (l_uc_Byte_Read_From_Memory);
 }
+
+unsigned int Get_Pressure_Val(void)
+{
+	unsigned int l_ui_Raw_ADC_Val = 0;
+	fn_enm_XGZP6857D_Pressure_SensorGet_Raw_ADC_Temperature_Data(&l_ui_Raw_ADC_Val);
+	return l_ui_Raw_ADC_Val;
+}

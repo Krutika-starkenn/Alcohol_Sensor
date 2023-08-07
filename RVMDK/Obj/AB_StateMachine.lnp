@@ -7,6 +7,7 @@
 ".\obj\hal_i2c.o"
 ".\obj\hal_spi.o"
 ".\obj\pressure_sensor_xgpg6857d.o"
+".\obj\alcohol_sensor.o"
 ".\obj\cortexm3_macro.o"
 ".\obj\stm32f10x_vector.o"
 ".\obj\stm32f10x_adc.o"
