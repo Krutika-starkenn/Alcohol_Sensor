@@ -73,7 +73,7 @@ int main(void)
 		g_uc_Main_State_Machine = enm_STATE_HANDLE_HEARTBEAT;
 
 		#if 1//DEBUG_ON
-					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Welcome to Starkenn Technologies \r\n Build Version: AB_StateMachine.hex");	
+					sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Welcome to Starkenn Technologies \r\n Build Version: AB_01_00_D01.hex");	
 			fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
 		#endif
 
@@ -101,7 +101,20 @@ int main(void)
             
             case enm_STATE_HANDLE_TEMPERATURE_SENSOR:
             {				
-							g_uc_Main_State_Machine = enm_STATE_HANDLE_HEARTBEAT;
+							g_uc_Main_State_Machine = enm_STATE_HANDLE_LED_BUZZER;
+						}
+						break;
+						
+						case enm_STATE_HANDLE_LED_BUZZER:
+						{
+							fn_Handle_LED_BUZZER_Indication();
+							g_uc_Main_State_Machine = enm_STATE_ERROR_HANDLING;
+						}
+						break;
+						
+						case enm_STATE_ERROR_HANDLING:
+						{
+							g_uc_Main_State_Machine = enm_STATE_HANDLE_HEARTBEAT;						
 						}
 						break;
         }

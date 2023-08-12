@@ -82,7 +82,10 @@ unsigned char fn_uc_Get_Alcohol_Sensor_Raw_ADC_Data(unsigned short *arg_ptr_Resu
 unsigned char fn_uc_Send_Alcohol_Test_Start_Status_To_ECU(unsigned char arg_uc_Status);
 unsigned char fn_uc_Send_Alcohol_Test_Result_To_ECU(unsigned char arg_uc_Alcohol_Test_Result_Status, unsigned short arg_us_Measured_Alcohol_Level);
 void fn_Calculate_Time_Period_Using_Port_Pin(void);
-unsigned fn_uc_Handle_Cap_Vibrations(void);
+unsigned char fn_uc_Handle_Cap_Vibrations(void);
+unsigned char Get_Current_Alcohol_State(void);
+unsigned char fn_Get_Alcohol_Test_Start_Status(void);
+
 
 #endif
 

@@ -151,6 +151,7 @@ void SysTickHandler(void)
 	if(g_vui_Ticker_Pump_Turn_On_Timeout)								g_vui_Ticker_Pump_Turn_On_Timeout--;
 	  
   if(g_vui_Ticker_Alcohol_Sensor_Sampling_Interval_Integration)   g_vui_Ticker_Alcohol_Sensor_Sampling_Interval_Integration--;
+	if(g_vui_Ticker_LED_Blink_Timeout)				g_vui_Ticker_LED_Blink_Timeout--;
 }
 
 /*******************************************************************************

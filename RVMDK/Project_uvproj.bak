@@ -415,6 +415,11 @@
               <FileType>1</FileType>
               <FilePath>..\Application_Layer\Alcohol_Detection_Algorithm.c</FilePath>
             </File>
+            <File>
+              <FileName>LED_Buzzer_Handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Application_Layer\LED_Buzzer_Handle.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -449,6 +454,11 @@
               <FileName>Pressure_Sensor_XGPG6857D.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware_Abstraction_Layer\Pressure_Sensor_XGPG6857D.c</FilePath>
+            </File>
+            <File>
+              <FileName>Alcohol_Sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware_Abstraction_Layer\Alcohol_Sensor.c</FilePath>
             </File>
           </Files>
         </Group>

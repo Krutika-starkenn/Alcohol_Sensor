@@ -37,9 +37,26 @@ typedef enum
 {
     enm_STATE_HANDLE_HEARTBEAT = 0,
     enm_STATE_HANDLE_ALCOHOL_DETECTION,
-    enm_STATE_HANDLE_TEMPERATURE_SENSOR
+    enm_STATE_HANDLE_TEMPERATURE_SENSOR,
+		enm_STATE_HANDLE_LED_BUZZER,
+		enm_STATE_ERROR_HANDLING,
+	
+		enm_MAX_STATES
 }tdenm_Main_State_Machine;
 
+enum
+{
+	TEST_NOT_STARTED = 0,
+	TEST_STARTED = 1,
+	TEST_IN_PROGRESS = 2,
+	TEST_COMPLETED = 3
+};
+
+enum
+{
+	SAMPLING_STARTED = 1,
+	SAMPLING_COMPLETED = 0,
+};
 
 extern unsigned char g_uc_Transmit_Buffer[];
 
@@ -60,6 +77,7 @@ extern volatile unsigned int g_vui_Ticker_Power_ON_Wait_Time;
 extern volatile unsigned int g_vui_Ticker_Get_Sensor_Data_Cmd_Interval;
 extern volatile unsigned int g_vui_Ticker_ADC_Voltage_Level_Scanning_Time;
 extern volatile unsigned int g_vui_Ticker_Pump_Turn_On_Timeout;
+extern volatile unsigned int g_vui_Ticker_LED_Blink_Timeout;
 
 extern unsigned char g_uc_Flag_LED_State;
 extern unsigned char g_uc_Flag_Send_Data;
@@ -108,6 +126,8 @@ void fn_uc_Send_Byte_On_UART3_Port(u8 byt);
 void fn_uc_Send_String_On_UART3_Port (unsigned char *bytes);
 unsigned char fn_uc_RGB_LED_Off(void);
 unsigned char fn_uc_RGB_LED_On(void);
+void fn_Handle_LED_BUZZER_Indication(void);
+
 // Timers
 void SetTimer3(void);
 void SetTimer4(void);

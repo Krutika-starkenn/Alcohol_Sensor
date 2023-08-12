@@ -49,6 +49,11 @@ void Set_Clear_Flag(unsigned char *arg_Flag_To_Be_Changed, unsigned char arg_uc_
 	*arg_Flag_To_Be_Changed = arg_uc_Status;
 }
 
+unsigned char Get_Current_Alcohol_State(void)
+{
+	return g_uc_Alcohol_State_Machine;
+}
+
 void fn_uc_Handle_Alcohol_Test(void)
 {
 		
@@ -57,11 +62,10 @@ void fn_uc_Handle_Alcohol_Test(void)
 		case STATE_WAIT_FOR_TEST_START:
 		{
 			// if Start Alcohol test Msg received from DMS then start timer
-			if(1 == fn_Get_Alcohol_Test_Start_Status())
+			if(TEST_STARTED == fn_Get_Alcohol_Test_Start_Status())
 			{
-				if(0 == Get_Flag_Status_Clear_Residue())
+				if(RESET == Get_Flag_Status_Clear_Residue())
 				{
-					//g_uc_Clear_Out_Residue = 1;
 					Set_Clear_Flag(&g_uc_Clear_Out_Residue, SET);
 					// start AIR Sampling pump to clear out alcohol residue if any
 					TURN_ON_AIR_SAMPLING_PUMP;	
@@ -72,7 +76,6 @@ void fn_uc_Handle_Alcohol_Test(void)
 				{
 					if(!g_vui_Ticker_Pump_Turn_On_Timeout)
 					{
-						//g_uc_Clear_Out_Residue = 0;
 						Set_Clear_Flag(&g_uc_Clear_Out_Residue, RESET);					
 						g_vui_Ticker_Alcohol_Test_Timeout_Timer = ALCOHOL_TEST_TIMEOUT_TIMER;
 						TURN_OFF_AIR_SAMPLING_PUMP;
@@ -97,15 +100,14 @@ void fn_uc_Handle_Alcohol_Test(void)
 				//fn_uc_Send_Alcohol_Test_Start_Status_To_ECU(ALCOHOL_TEST_STARTED);
 				
 				// Go to Next State to Start collecting Air Sample
-				//g_uc_Flag_Air_Sampling_Pump_State = 1;
-				Set_Clear_Flag(&g_uc_Flag_Air_Sampling_Pump_State, SET);
+				Set_Clear_Flag(&g_uc_Flag_Air_Sampling_Pump_State, SAMPLING_STARTED);
 					
 				g_uc_Alcohol_State_Machine = STATE_HANDLE_AIR_SUCTION_PUMP;
 				g_vui_Ticker_Timeout_For_Pump_Activation_Timer = PUMP_ACTIVATION_TIMEOUT;
 			}
 			else
 			{			
-				if(1 == g_uc_Flag_Start_Alcohol_Test)
+				if(TEST_STARTED == fn_Get_Alcohol_Test_Start_Status())
 				{
 					if(!g_vui_Ticker_Alcohol_Test_Timeout_Timer)
 					{
@@ -121,8 +123,7 @@ void fn_uc_Handle_Alcohol_Test(void)
 				else			
 				{
 					g_uc_Alcohol_State_Machine = STATE_WAIT_FOR_TEST_START;
-					//g_uc_Flag_Start_Alcohol_Test = 0;
-					Set_Clear_Flag(&g_uc_Flag_Start_Alcohol_Test, RESET);					
+					Set_Clear_Flag(&g_uc_Flag_Start_Alcohol_Test, TEST_STARTED);					
 						
 				}
 			}
@@ -131,12 +132,12 @@ void fn_uc_Handle_Alcohol_Test(void)
 		
 		case STATE_HANDLE_AIR_SUCTION_PUMP:
 		{
-			if(0 == g_uc_Flag_Air_Sampling_Pump_State)
+			if(SAMPLING_COMPLETED == g_uc_Flag_Air_Sampling_Pump_State)
 			{
 				// Go to Pressure monitoring state
 				g_uc_Alcohol_State_Machine = STATE_PROCESS_SAMPLES;
 			}
-			else if((1 == g_uc_Flag_Air_Sampling_Pump_State) && (0 == g_vui_Ticker_Timeout_For_Pump_Activation_Timer))
+			else if((SAMPLING_STARTED == g_uc_Flag_Air_Sampling_Pump_State) && (!g_vui_Ticker_Timeout_For_Pump_Activation_Timer))
 			{
 				// start AIR Sampling pump and start timer for 
 				TURN_ON_AIR_SAMPLING_PUMP;
@@ -173,9 +174,9 @@ void fn_uc_Handle_Alcohol_Test(void)
 
 							g_ui_Average_Val += g_a_us_1msec_Readings[g_us_1msec_Reading_Index];
 							g_us_1msec_Reading_Index++;
-							if(g_us_1msec_Reading_Index >= 10)
+							if(g_us_1msec_Reading_Index >= MAX_ALCOHOL_SAMPLES)
 							{
-									g_ui_Average_Val /= 10;
+									g_ui_Average_Val /= MAX_ALCOHOL_SAMPLES;
 									g_a_us_10msec_Readings[g_us_10ms_Index] = g_ui_Average_Val;
 									g_us_10ms_Index ++;
 									g_us_1msec_Reading_Index = 0;
@@ -197,11 +198,10 @@ void fn_uc_Handle_Alcohol_Test(void)
         }
 				else
 				{
-						//g_uc_Flag_Air_Sampling_Pump_State = 0;
-						Set_Clear_Flag(&g_uc_Flag_Air_Sampling_Pump_State, RESET);
+						Set_Clear_Flag(&g_uc_Flag_Air_Sampling_Pump_State, SAMPLING_COMPLETED);
 				
 						g_uc_Alcohol_State_Machine = STATE_HANDLE_AIR_SUCTION_PUMP;
-						GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_RESET);
+						//GPIO_WriteBit(GPIOC, GPIO_Pin_1, Bit_RESET);
 				}
 		}
 		break;
@@ -216,8 +216,6 @@ void fn_uc_Handle_Alcohol_Test(void)
             {
                 g_ui_Average_Val += g_a_us_10msec_Readings[l_us_Process_Result_Index];
                 //l_f_Rel_Voltage = g_a_us_10msec_Readings[l_us_Process_Result_Index] * 0.000811;
-//				sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n %d \t, %.3f", g_a_us_10msec_Readings[l_us_Process_Result_Index], l_f_Rel_Voltage);
-//				fn_uc_Send_String_On_Debug_Port((char *)g_uc_Transmit_Buffer);
                 
                 g_a_us_10msec_Readings[l_us_Process_Result_Index] = 0;
             }
@@ -226,8 +224,8 @@ void fn_uc_Handle_Alcohol_Test(void)
             g_us_1msec_Reading_Index = 0;
 			
 			// clear start test flag
-			g_uc_Flag_Start_Alcohol_Test = 0;
-			
+			Set_Clear_Flag(&g_uc_Flag_Start_Alcohol_Test, RESET);					
+					
 			g_uc_Alcohol_State_Machine = STATE_SEND_RESULT_TO_ECU;
 		}
 		break;
@@ -240,7 +238,7 @@ void fn_uc_Handle_Alcohol_Test(void)
             
 			//fn_uc_Send_Alcohol_Test_Result_To_ECU(g_uc_Alcohol_Test_Status, g_us_Measured_Alcohol_Level);
 			      
-            if(0 == g_uc_Take_Initial_Readings)
+            if(RESET == g_uc_Take_Initial_Readings)
             {
                 g_uc_Take_Initial_Readings = 1;
 								sprintf((char *)&g_uc_Transmit_Buffer[0],"\r\n Breathalyzer can now be used");
@@ -452,12 +450,11 @@ void fn_Calculate_Time_Period_Using_Port_Pin(void)
 
 }
 
-unsigned fn_uc_Handle_Cap_Vibrations(void)
+unsigned char fn_uc_Handle_Cap_Vibrations(void)
 {
     static unsigned char l_s_uc_Start_Vibrations = 0;
     
     if(g_f_BAC > 0.03)
-//    if(g_f_BAC > 0)
     {
         if(0 == l_s_uc_Start_Vibrations)
         {
