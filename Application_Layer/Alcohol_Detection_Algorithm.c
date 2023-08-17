@@ -482,5 +482,15 @@ unsigned char fn_Get_Alcohol_Test_Start_Status(void)
 
 void fn_Handle_Error(void)
 {
-	
+	switch(1)
+	{
+		case 1:
+		{
+			
+		}
+		break;
+		
+		default:
+			break;
+	}
 }
