@@ -478,3 +478,9 @@ unsigned char fn_Get_Alcohol_Test_Start_Status(void)
 {
 	return g_uc_Flag_Start_Alcohol_Test;
 }
+
+
+void fn_Handle_Error(void)
+{
+	
+}

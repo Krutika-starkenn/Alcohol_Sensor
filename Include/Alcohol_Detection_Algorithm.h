@@ -26,13 +26,15 @@
 #define DEBUG_BATTERY_LEVEL_RAW_ADC_DATA				0
 
 // ****************** CAN ID's ******************************
-#define CAN_TX_ID_OF_ALCOHOL_TEST_START_STATUS			0x20E
-#define CAN_TX_ID_OF_ALCOHOL_TEST_RESULT				0x20F
+#define CAN_TX_ID_OF_ALCOHOL_TEST_START_STATUS				0x223
+#define CAN_TX_ID_OF_ALCOHOL_TEST_RESULT							0x224
+#define CAN_TX_ID_OF_ALCOHOL_HB												0x227
+
  // CAN RX messages from ECU
-#define	CAN_RX_ID_OF_START_ALCOHOL_TEST             	0x20A
-#define	CAN_RX_ID_OF_ALCOHOL_THRESHOLD             		0x20B
-#define	CAN_TX_ID_OF_RESERVED_1							0x20C
-#define	CAN_TX_ID_OF_RESERVED_2							0x20D
+#define	CAN_RX_ID_OF_START_ALCOHOL_TEST             	0x222
+#define	CAN_RX_ID_OF_ALCOHOL_THRESHOLD             		0x221
+#define	CAN_RX_ID_OF_SPEED_FROM_DMS										0x225
+#define	CAN_RX_ID_OF_DMS_HB														0x226
 // **********************************************************
 
 

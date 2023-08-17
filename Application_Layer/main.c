@@ -114,6 +114,7 @@ int main(void)
 						
 						case enm_STATE_ERROR_HANDLING:
 						{
+							fn_Handle_Error();
 							g_uc_Main_State_Machine = enm_STATE_HANDLE_HEARTBEAT;						
 						}
 						break;

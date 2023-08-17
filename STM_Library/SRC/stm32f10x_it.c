@@ -500,6 +500,18 @@ void USB_LP_CAN_RX0_IRQHandler(void)
             }            
         }
         break;
+				
+				case CAN_RX_ID_OF_SPEED_FROM_DMS	:
+				{
+				}
+        break;
+								
+				case CAN_RX_ID_OF_DMS_HB:	
+				{
+				}
+        break;
+								
+				
 		
     }// End of Switch
     
